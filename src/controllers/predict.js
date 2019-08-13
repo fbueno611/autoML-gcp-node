@@ -1,15 +1,17 @@
-//const axios = require('axios')
 const automl = require('@google-cloud/automl')
 const Text = require('../models/text')
 const credentials = require('../config/env')
 
 const self = this
 
-// module.exports = {
 exports.postPredict = async (req, res) => {
-    const { text, classifierId } = req.body
-    const response = await self.predictText(text, classifierId)
-    return res.json(response)
+    const { texts, classifierId } = req.body
+    let predicts = []
+    for (const text of texts) {
+        const predict = await self.predictText(text, classifierId)
+        predicts.push(predict)
+    }
+    return res.json(predicts)
 }
 
 exports.predictText = async (text, classifierId) => {
@@ -40,7 +42,6 @@ exports.predictText = async (text, classifierId) => {
         return error
     }
 }
-// }
 
 
 
