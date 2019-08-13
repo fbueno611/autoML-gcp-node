@@ -8,8 +8,14 @@ exports.postPredict = async (req, res) => {
     const { texts, classifierId } = req.body
     let predicts = []
     for (const text of texts) {
-        const predict = await self.predictText(text, classifierId)
-        predicts.push(predict)
+        let predict = (await self.predictText(text, classifierId))[0]
+        delete predict.annotationSpecId
+        delete predict.detail
+
+        predicts.push({
+            text,
+            predict
+        })
     }
     return res.json(predicts)
 }
