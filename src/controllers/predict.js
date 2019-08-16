@@ -1,20 +1,30 @@
 const automl = require('@google-cloud/automl')
 const Predict = require('../models/predict')
-const credentials = require('../config/env')
+const ENVS = require('../config/env')
 
 const self = this
+const credentials = ENVS.credentials
+
+exports.getPredict = async (req, res) => {
+    const predicts = await Predict.find({})
+    return res.json(predicts)
+}
 
 exports.postPredict = async (req, res) => {
     const { texts, classifierId } = req.body
     let predicts = []
     for (const text of texts) {
         console.log("index/key: ", texts.indexOf(text))
+        console.log("text", text);
         let predict = (await self.predictText(text, classifierId))[0]
         delete predict.annotationSpecId
         delete predict.detail
+        console.log("label", predict.displayName);
+        console.log("score", predict.classification.score);
         predict = await Predict.create({
             text,
-            predict
+            predict,
+            classifierId
         })
 
 
@@ -26,11 +36,11 @@ exports.postPredict = async (req, res) => {
     return res.json(predicts)
 }
 
+
 exports.predictText = async (text, classifierId) => {
     const client = new automl.v1beta1.PredictionServiceClient({
         credentials
     });
-    console.log({text});
     
     const formattedName = client.modelPath('analyze-service', 'us-central1', classifierId);
     
