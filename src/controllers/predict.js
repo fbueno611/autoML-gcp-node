@@ -3,7 +3,6 @@ const Predict = require('../models/predict')
 const ENVS = require('../config/env')
 
 const self = this
-const credentials = ENVS.credentials
 
 exports.getPredict = async (req, res) => {
     const predicts = await Predict.find({})
@@ -39,7 +38,7 @@ exports.postPredict = async (req, res) => {
 
 exports.predictText = async (text, classifierId) => {
     const client = new automl.v1beta1.PredictionServiceClient({
-        credentials
+        credentials: ENVS.credentials
     });
     
     const formattedName = client.modelPath('analyze-service', 'us-central1', classifierId);
