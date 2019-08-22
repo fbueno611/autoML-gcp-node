@@ -10,25 +10,43 @@ exports.getPredict = async (req, res) => {
 }
 
 exports.postPredict = async (req, res) => {
-    const { texts, classifierId } = req.body
+    const {messages} = req.body
     let predicts = []
-    for (const text of texts) {
-        console.log("index/key: ", texts.indexOf(text))
-        console.log("text", text);
+    
+    for (const message of messages) {
+        console.log("index/key: ", messages.indexOf(message))
+        
+        let text = message.text
+        console.log("text: ", text);
+        
+        let actMessage = message.act
+        console.log("act: ", actMessage);
+        
+        let classifierId = ENVS.classifierId[actMessage]
+        console.log("classifierId: ", classifierId);
+        
+        let sendlerId = message.sendlerId 
+        let name = message.name 
+        let sentOn = message.sentOn 
+        let teamGameId = message.teamGameId
+
         let predict = (await self.predictText(text, classifierId))[0]
         delete predict.annotationSpecId
         delete predict.detail
         console.log("label", predict.displayName);
         console.log("score", predict.classification.score);
         predict = await Predict.create({
-            text,
-            predict,
-            classifierId
+            sendlerId, 
+            text, 
+            name, 
+            sentOn, 
+            act: actMessage, 
+            teamGameId,
+            predict
         })
 
-
         predicts.push({
-            text,
+            message,
             predict
         })
     }
